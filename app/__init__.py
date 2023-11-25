@@ -5,6 +5,7 @@ from flask import Blueprint
 from flask_restx import Api
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 from .service.MakeDB import run as model_run
 
@@ -34,6 +35,7 @@ def get_model_blueprint():
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(config)
 
     db.init_app(app)
