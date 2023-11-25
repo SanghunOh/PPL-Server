@@ -35,23 +35,6 @@ from ..service.user_service import save_new_user, get_user
 from ..service.forms import SignInForm, SignUpForm
 from app.service.auth_helper import Auth
 
-# bp = Blueprint('main', __name__, url_prefix='/')
-
-
-
-# @api.route('')
-# @api.expect(parser)
-# class Users(Resource):
-#     @api.doc('user 정보 조회')
-#     def post(self):
-#         '''user 정보 조회'''
-#         auth_header = request.headers.get('Authorization')
-#         res = Auth.middleware(data=auth_header)
-#         if res['status'] == 'success':
-#             return get_user(res['email'])
-#         else:
-#             return res
-
 class UserDto:
     api = Namespace('user', description='')
     signup = api.model('user', {
@@ -66,7 +49,6 @@ class UserDto:
         'password': fields.String(required=True, description='user password'),
     })
 
-
 api = UserDto.api
 parser = api.parser()
 signup = UserDto.signup
@@ -80,8 +62,6 @@ class Users(Resource):
     def post(self):
         print((request.json.get('email')))
         email = request.json.get('email')
-        # print(request.form['email'])
-        # print("HELLO")
         return get_user(email)
 
 @api.route('/signup')
