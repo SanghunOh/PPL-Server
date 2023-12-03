@@ -2,7 +2,7 @@ from flask import Blueprint
 from flask import request
 from flask_restx import Resource, Namespace, fields
 
-from ..service.user_service import save_new_user, get_user
+from app.service.user_service import save_new_user, get_user
 from ..service.forms import SignInForm, SignUpForm
 from app.service.auth_helper import Auth
 

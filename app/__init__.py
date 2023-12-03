@@ -9,7 +9,7 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
-from .service.MakeDB import run as model_run
+from app.service.MakeDB import run as model_run
 
 db = SQLAlchemy()
 flask_bcrypt = Bcrypt()
@@ -18,10 +18,10 @@ migrate = Migrate()
 # modeldata = model_run();
 modeldata = {}
 
-from .controller.user_controller import api as user_api
-from .controller.model_controller import api as model_api
+from app.controller.user_controller import api as user_api
+from app.controller.model_controller import api as model_api
 
-from .model import user
+from app.model import user
 
 def get_user_blueprint():
     blueprint = Blueprint('user', __name__, url_prefix='/user')
