@@ -1,11 +1,14 @@
-from .. import db
+from .. import db, flask_bcrypt
 
 class User(db.Model):
     """ User Model for storing user related details """
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    username = db.Column(db.String(80), unique=False, nullable=False)
+    email = db.Column(db.String(120), unique=True)
     password_hash = db.Column(db.String(120))
+
+    interests = db.relationship('Interest', backref='user', lazy=True)
+    papers = db.relationship('Paper', backref='user', lazy=True)
+
     
     __tablename__ = 'user'
     __table_args__ = {'extend_existing': True} 
@@ -56,7 +59,17 @@ class User(db.Model):
         except jwt.InvalidTokenError:
             return None
 
-# class interests(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     question_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
-#     interests_ = db.relationship('Question', backref=db.backref('interests'))
+class Interest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+class Paper(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    abstract = db.Column(db.Text, nullable=False)
+    author = db.Column(db.String(255), nullable=False)
+    category = db.Column(db.String(255), nullable=False)
+    link = db.Column(db.String(255), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

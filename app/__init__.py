@@ -1,8 +1,10 @@
 import config
+import os
 
 from flask import Flask
 from flask import Blueprint
 from flask_restx import Api
+from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -10,16 +12,16 @@ from flask_cors import CORS
 from .service.MakeDB import run as model_run
 
 db = SQLAlchemy()
+flask_bcrypt = Bcrypt()
 migrate = Migrate()
 
-modeldata = model_run();
-# modeldata = {}
+# modeldata = model_run();
+modeldata = {}
 
 from .controller.user_controller import api as user_api
 from .controller.model_controller import api as model_api
 
 from .model import user
-
 
 def get_user_blueprint():
     blueprint = Blueprint('user', __name__, url_prefix='/user')
@@ -37,6 +39,12 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
     app.config.from_object(config)
+
+    app.config['SQLALCHEMY_POOL_SIZE'] = 10
+    app.config['SQLALCHEMY_MAX_OVERFLOW'] = 10
+    app.config['SQLALCHEMY_POOL_RECYCLE'] = 30
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ppl.sqlite'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
     migrate.init_app(app, db)

@@ -9,20 +9,20 @@ def save_new_user(data):
     try:
         if checkmail(data['email']):
             user = User.query.filter_by(email=data['email']).first()
+            print(user)
             # db에 중복되는 email 주소 없음.
-            if not user:
-                majorparse = ' '.join(data['major'])
+            if user == None:
                 new_user = User(
                     email=data['email'],
-                    username=data['username'],
                     password=data['password'],
                 )
-                save_changes(new_user)
                 response_object = {
                     'status': 'success',
                     'message': '회원가입 되었습니다.'
                 }
-                db.session.close()
+                db.session.add(new_user)
+                db.session.commit()
+                # db.session.close()
                 return response_object, 201
             else:
                 response_object = {
@@ -68,8 +68,10 @@ def get_user(email):
                 'status': 'success',
                 'message': '회원 조회에 성공했습니다.',
                 'data': {
+                    'id': user.id,
                     'email' : user.email,
-                    'username' : user.username,
+                    'category' : user.interests,
+                    'library' : user.papers,
                 }
             }
             db.session.close()
