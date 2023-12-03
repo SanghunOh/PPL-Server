@@ -86,7 +86,7 @@ class GetPaper(Resource):
         # 생성한 모델을 string parsing을 통해 로드한다.
         model_path = category.split('_')[0]
         model_name = category + '_한국어_model'
-        model = doc2vec.Doc2Vec.load('../API/Model/{}/{}'.format(model_path, model_name))
+        model = doc2vec.Doc2Vec.load('app/service/Model/{}/{}'.format(model_path, model_name))
 
 
         # vector infer
