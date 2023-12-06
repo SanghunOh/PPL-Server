@@ -7,6 +7,8 @@ from flask_restx import Resource, Namespace, fields
 from app.service.InferVector import infer_vector
 from app import modeldata
 
+from ..model.user import Paper
+
 class ModelDto:
     api = Namespace('model', description='')
     infer = api.model('model', {
@@ -25,6 +27,7 @@ class ModelInfer(Resource):
 
         # 개인서재의 논문 목록을 받아온다. 여러개의 json을 받아오는 경우
         params = request.get_json()
+
         category = ''
         text = []
         name_list = []
