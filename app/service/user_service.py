@@ -28,17 +28,7 @@ def save_new_user(data):
                 for interest in interests:
                     new_interest = Interest(name=interest, user_id=new_user.id)
                     db.session.add(new_interest);
-                
-                # new_paper = Paper(
-                #     abstract="dummy text",
-                #     author="me",
-                #     category="공학_토목공학",
-                #     link="https://www.google.com",
-                #     title="capstone design",
-                #     year=2019,
-                #     user_id=12,
-                # )
-                db.session.add(new_paper)
+            
                 db.session.commit()
                 # db.session.close()
                 return response_object, 201
