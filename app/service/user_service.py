@@ -103,6 +103,65 @@ def get_user(email):
     finally:
         db.session.close()
 
+def add_user_paper(data):
+    try:
+        user = User.query.filter_by(id=data['user_id']).first()
+        # db에 중복되는 email 주소 없음.
+        if user != None:
+            paper = Paper.query.filter_by(title=data['title'])
+            ids = [p.user_id for p in paper]
+            if paper.count == 0 or user.id not in ids:
+                new_paper = Paper(
+                    abstract=data['abstract'],
+                    author=data['author'],
+                    category=data['category'],
+                    link=data['link'],
+                    title=data['title'],
+                    year=data['year'],
+                    user_id=data['user_id']
+                )
+                
+                interests = [interest.to_dict() for interest in user.interests]
+                user.papers.append(new_paper)
+                papers = [paper.to_dict() for paper in user.papers]
+                response_object = {
+                    'status': 'success',
+                    'message': 'library에 paper를 추가하였습니다.',
+                    'data': {
+                        'id': user.id,
+                        'email' : user.email,
+                        'category' : interests,
+                        'library' : papers,
+                    }
+                }
+                db.session.commit()
+                # db.session.close()
+                return response_object, 201
+            else:
+                response_object = {
+                    'status': 'fail',
+                    'message': '이미 저장된 논문입니다.',
+                    'data': {},
+                }
+                db.session.close()
+                return response_object, 401
+        else:
+            response_object = {
+                'status': 'fail',
+                'message': '해당 회원이 없습니다.',
+                'data': {},
+            }
+            db.session.close()
+            return response_object, 401
+    except Exception as e:
+        response_object = {
+            'status': 'error',
+            'message': str(e)
+        }
+        return response_object, 500
+    finally:
+        db.session.close()
+
 # email 형식 체크
 def checkmail(email):
     p = re.compile('^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')

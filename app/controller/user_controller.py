@@ -2,7 +2,7 @@ from flask import Blueprint
 from flask import request
 from flask_restx import Resource, Namespace, fields
 
-from app.service.user_service import save_new_user, get_user
+from app.service.user_service import save_new_user, get_user, add_user_paper
 from ..service.forms import SignInForm, SignUpForm
 from app.service.auth_helper import Auth
 
@@ -17,8 +17,14 @@ class UserDto:
         'email': fields.String(required=True, description='user email address'),
         'password': fields.String(required=True, description='user password'),
     })
-    library = api.model('user', {
-        'id': fields.Integer(required=True, description='User ID'),
+    library = api.model('library', {
+        'abstract':fields.String(required=True, description='abstract'),
+        'author': fields.String(required=True, description='author'),
+        'category': fields.String(required=True, description='category'),
+        'link': fields.String(required=True, description='link'),
+        'title': fields.String(required=True, description='title'),
+        'year': fields.Integer(required=True, description='year'),
+        'user_id': fields.Integer(required=True, description='User ID')
     })
 
 api = UserDto.api
@@ -44,3 +50,11 @@ class NewUser(Resource):
     def post(self):
         userData = request.json
         return save_new_user(userData)
+    
+@api.route('/library')
+@api.expect(parser)
+class Users(Resource):
+    @api.doc('library에 추가')
+    @api.expect(library, validate=True)
+    def post(self):
+        return add_user_paper(request.json)
