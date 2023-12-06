@@ -1,6 +1,9 @@
 import re
+from flask import jsonify
 
 from ..model.user import User
+from ..model.user import Interest
+from ..model.user import Paper
 from app import db
 
 # 회원가입한 회원 정보를 user모델(즉, user테이블에 넣기)
@@ -9,7 +12,6 @@ def save_new_user(data):
     try:
         if checkmail(data['email']):
             user = User.query.filter_by(email=data['email']).first()
-            print(user)
             # db에 중복되는 email 주소 없음.
             if user == None:
                 new_user = User(
@@ -21,6 +23,22 @@ def save_new_user(data):
                     'message': '회원가입 되었습니다.'
                 }
                 db.session.add(new_user)
+                db.session.commit()
+                interests = data['interests'];
+                for interest in interests:
+                    new_interest = Interest(name=interest, user_id=new_user.id)
+                    db.session.add(new_interest);
+                
+                # new_paper = Paper(
+                #     abstract="dummy text",
+                #     author="me",
+                #     category="공학_토목공학",
+                #     link="https://www.google.com",
+                #     title="capstone design",
+                #     year=2019,
+                #     user_id=12,
+                # )
+                db.session.add(new_paper)
                 db.session.commit()
                 # db.session.close()
                 return response_object, 201
@@ -64,14 +82,16 @@ def get_user(email):
     try:
         user = User.query.filter_by(email=email).first()
         if user:
+            interests = [interest.to_dict() for interest in user.interests]
+            papers = [paper.to_dict() for paper in user.papers]
             response_object = {
                 'status': 'success',
                 'message': '회원 조회에 성공했습니다.',
                 'data': {
                     'id': user.id,
                     'email' : user.email,
-                    'category' : user.interests,
-                    'library' : user.papers,
+                    'category' : interests,
+                    'library' : papers,
                 }
             }
             db.session.close()
@@ -80,7 +100,7 @@ def get_user(email):
             response_object = {
                 'status': 'fail',
                 'message': '해당 회원이 없습니다.',
-                data: {},
+                'data': {},
             }
             db.session.close()
             return response_object, 401

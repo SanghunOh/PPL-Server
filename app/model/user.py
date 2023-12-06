@@ -64,6 +64,12 @@ class Interest(db.Model):
     name = db.Column(db.String(80), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'text': self.name
+        }
+
 class Paper(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     abstract = db.Column(db.Text, nullable=False)
@@ -73,3 +79,15 @@ class Paper(db.Model):
     title = db.Column(db.String(255), nullable=False)
     year = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'abstract': self.abstract,
+            'author': self.author,
+            'category': self.category,
+            'link': self.link,
+            'name': self.title,
+            'user_id': self.user_id,
+            'year': self.year
+        }

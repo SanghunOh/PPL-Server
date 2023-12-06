@@ -15,8 +15,8 @@ db = SQLAlchemy()
 flask_bcrypt = Bcrypt()
 migrate = Migrate()
 
-# modeldata = model_run();
-modeldata = {}
+modeldata = model_run();
+# modeldata = {}
 
 from app.controller.user_controller import api as user_api
 from app.controller.model_controller import api as model_api

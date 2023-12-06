@@ -6,6 +6,7 @@ from flask_restx import Resource, Namespace, fields
 
 from app.service.InferVector import infer_vector
 from app import modeldata
+from ..model.user import Paper
 
 from ..model.user import Paper
 
@@ -20,14 +21,36 @@ api = ModelDto.api
 parser = api.parser()
 infer = ModelDto.infer
 
-@api.route('/post')
+@api.route('/getpaperlist')
 class ModelInfer(Resource):
     @api.expect(infer, validate=False)
     def post(self):
 
         # 개인서재의 논문 목록을 받아온다. 여러개의 json을 받아오는 경우
+        # 사용자 (user_id)
         params = request.get_json()
+        UID = params["user_id"]
+        category = params['category']
+        #print(params)
 
+        paper_list = Paper.query.filter_by(user_id = UID)
+        #print(paper_list)
+
+        text = []
+        title_list = []
+
+        if paper_list.first() == None:
+            print("None!!!")
+            text.append(category) # 개인서재에 아무것도 없을 경우를 위해 코드작성
+
+        for paper in paper_list:
+            print("HERE")
+            title = paper.title
+            text.append(modeldata[title][1])
+            title_list.append(title)
+
+        '''
+        
         category = ''
         text = []
         name_list = []
@@ -36,6 +59,8 @@ class ModelInfer(Resource):
             category = json['category']
             text.append(modeldata[name][1])
             name_list.append(name)
+        '''
+
 
         # 생성한 모델을 string parsing을 통해 로드한다.
         model_path = category.split('_')[0]
@@ -56,11 +81,11 @@ class ModelInfer(Resource):
         count = 0
         for doc_name, cosine in similar_doc:
             # 기존에 사용자가 서재에 추가한 논문의 경우는 추천 논문 리스트에 포함시키지 않음
-            if doc_name in name_list:
+            if doc_name in title_list:
                 continue;
             count+=1
             json = dict()
-            json['name'] = doc_name
+            json['title'] = doc_name
             json['abstract'] = modeldata[doc_name][1]
             json['author'] = modeldata[doc_name][2]
             json['year'] = modeldata[doc_name][3]
@@ -71,6 +96,7 @@ class ModelInfer(Resource):
                 break
 
         return jsonify(json_obj)
+
 
 @api.route('/getpaper')
 class GetPaper(Resource):
@@ -102,7 +128,7 @@ class GetPaper(Resource):
         json_obj = []
         for doc_name, cosine in similar_doc:
             json = dict()
-            json['name'] = doc_name
+            json['title'] = doc_name
             json['abstract'] = modeldata[doc_name][1]
             json['author'] = modeldata[doc_name][2]
             json['year'] = modeldata[doc_name][3]
