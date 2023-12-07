@@ -5,7 +5,7 @@ from gensim.models import doc2vec
 from flask_restx import Resource, Namespace, fields
 
 from app.service.InferVector import infer_vector
-from app import modeldata
+from app import modeldata, category_list
 from ..model.user import Paper
 
 from ..model.user import Paper
@@ -97,6 +97,18 @@ class ModelInfer(Resource):
 
         return jsonify(json_obj)
 
+@api.route('/getcategory')
+class GetCategory(Resource):
+    @api.expect(infer, validate=False)
+    def get(self):
+        json_obj = []
+        CL = list(category_list)
+        CL.sort()
+        for category in CL:
+            json = dict()
+            json['category'] = category
+            json_obj.append(json)
+        return jsonify(json_obj)
 
 @api.route('/getpaper')
 class GetPaper(Resource):

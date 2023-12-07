@@ -8,6 +8,7 @@ def run():
     dir_path = 'app/service/RISS'
 
     data = dict()
+    category_list = set()
     for (root, directories, files) in os.walk(dir_path):
         for file in files:
             file_path = os.path.join(root, file)
@@ -29,6 +30,7 @@ def run():
                 df = df.dropna()
                 category = uni.split('.')[0]
                 category = category.replace('_한국어', '')
+                category_list.add(category)
                 for index, row in tqdm(df.iterrows(), total=len(df)):
                     name = row['name']
                     abstract = row['abstract']
@@ -37,4 +39,4 @@ def run():
                     link = row['link']
                     if(name not in data):
                         data[name] = (name, abstract, author, year, link, category)
-    return data
+    return data, category_list
