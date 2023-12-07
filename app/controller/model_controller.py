@@ -123,7 +123,8 @@ class GetCategory(Resource):
                 json_obj.append({'name' : C2})
             else:
                 json_obj.append({'name' : C2})
-
+        json['list'] = json_obj
+        retjson.append(json)
 
         return jsonify(retjson)
 
