@@ -5,8 +5,7 @@ from gensim.models import doc2vec
 from flask_restx import Resource, Namespace, fields
 
 from app.service.InferVector import infer_vector
-from app import modeldata
-from ..model.user import Paper
+from app import modeldata, category_list
 
 from ..model.user import Paper
 
@@ -40,11 +39,11 @@ class ModelInfer(Resource):
         title_list = []
 
         if paper_list.first() == None:
-            print("None!!!")
+            #print("None!!!")
             text.append(category) # 개인서재에 아무것도 없을 경우를 위해 코드작성
 
         for paper in paper_list:
-            print("HERE")
+            #print("HERE")
             title = paper.title
             text.append(modeldata[title][1])
             title_list.append(title)
@@ -97,6 +96,37 @@ class ModelInfer(Resource):
 
         return jsonify(json_obj)
 
+@api.route('/getcategory')
+class GetCategory(Resource):
+    @api.expect(infer, validate=False)
+    def get(self):
+        retjson = []
+        CL = list(category_list)
+        CL.sort()
+
+        CLL = []
+        json_obj = []
+        json = dict()
+        for category in CL:
+            C1 = category.split('_')[0]
+            C2 = category.split('_')[1]
+
+            if C1 not in CLL:
+                if CLL != list():
+                    json['list'] = json_obj
+                    retjson.append(json)
+                    json_obj = list()
+                    json = dict()
+                CLL.append(C1)
+                json['category'] = C1
+                #retjson.append(json)
+                json_obj.append({'name' : C2})
+            else:
+                json_obj.append({'name' : C2})
+        json['list'] = json_obj
+        retjson.append(json)
+
+        return jsonify(retjson)
 
 @api.route('/getpaper')
 class GetPaper(Resource):
