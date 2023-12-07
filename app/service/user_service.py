@@ -162,6 +162,87 @@ def add_user_paper(data):
     finally:
         db.session.close()
 
+def delete_user_paper(data):
+    try:
+        user = User.query.filter_by(id=data['user_id']).first()
+        if user != None:
+            paper_to_remove = Paper.query.filter_by(id=data['id']).first()
+            if paper_to_remove:
+                # user.papers.remove(paper_to_remove)
+                interests = [interest.to_dict() for interest in user.interests]
+                papers = [paper.to_dict() for paper in user.papers if paper.id != data['id']]
+                response_object = {
+                    'status': 'success',
+                    'message': 'library에 paper를 추가하였습니다.',
+                    'data': {
+                        'id': user.id,
+                        'email' : user.email,
+                        'category' : interests,
+                        'library' : papers,
+                    }
+                }
+                db.session.delete(paper_to_remove)
+                db.session.commit()
+                db.session.close()
+                return response_object, 201
+        else:
+            response_object = {
+                'status': 'fail',
+                'message': '해당 회원이 없습니다.',
+                'data': {},
+            }
+            db.session.close()
+            return response_object, 401
+    except Exception as e:
+        response_object = {
+            'status': 'error',
+            'message': str(e)
+        }
+        return response_object, 500
+    finally:
+        db.session.close()
+
+def delete_user_interest(data):
+    try:
+        user = User.query.filter_by(id=data['user_id']).first()
+        if user != None:
+            interest_to_remove = Interest.query.filter_by(id=data['id']).first()
+            if interest_to_remove:
+                
+                interests = [interest.to_dict() for interest in user.interests if interest.id != data['id']]
+                papers = [paper.to_dict() for paper in user.papers]
+                response_object = {
+                    'status': 'success',
+                    'message': 'library에 paper를 추가하였습니다.',
+                    'data': {
+                        'id': user.id,
+                        'email' : user.email,
+                        'category' : interests,
+                        'library' : papers,
+                    }
+                }
+                db.session.delete(interest_to_remove)
+                db.session.commit()
+                db.session.close()
+                return response_object, 201
+        else:
+            response_object = {
+                'status': 'fail',
+                'message': '해당 회원이 없습니다.',
+                'data': {},
+            }
+            db.session.close()
+            return response_object, 401
+    except Exception as e:
+        response_object = {
+            'status': 'error',
+            'message': str(e)
+        }
+        return response_object, 500
+    finally:
+        db.session.close()
+
+
 # email 형식 체크
 def checkmail(email):
     p = re.compile('^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
