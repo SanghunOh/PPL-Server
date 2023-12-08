@@ -87,7 +87,7 @@ class Paper(db.Model):
             'author': self.author,
             'category': self.category,
             'link': self.link,
-            'name': self.title,
+            'title': self.title,
             'user_id': self.user_id,
             'year': self.year
         }

@@ -166,14 +166,16 @@ def delete_user_paper(data):
     try:
         user = User.query.filter_by(id=data['user_id']).first()
         if user != None:
-            paper_to_remove = Paper.query.filter_by(id=data['id']).first()
+            # paper_to_remove = Paper.query.filter_by(title=data['title']).first()
+            paper_to_remove = [paper for paper in user.papers if paper.id != data['title']][0]
             if paper_to_remove:
                 # user.papers.remove(paper_to_remove)
+                print(paper_to_remove)
                 interests = [interest.to_dict() for interest in user.interests]
-                papers = [paper.to_dict() for paper in user.papers if paper.id != data['id']]
+                papers = [paper.to_dict() for paper in user.papers if paper.title != data['title']]
                 response_object = {
                     'status': 'success',
-                    'message': 'library에 paper를 추가하였습니다.',
+                    'message': 'library에 paper를 삭제하였습니다.',
                     'data': {
                         'id': user.id,
                         'email' : user.email,
@@ -184,6 +186,20 @@ def delete_user_paper(data):
                 db.session.delete(paper_to_remove)
                 db.session.commit()
                 db.session.close()
+                return response_object, 201
+            else :
+                interests = [interest.to_dict() for interest in user.interests]
+                papers = [paper.to_dict() for paper in user.papers]
+                response_object = {
+                    'status': 'success',
+                    'message': 'library에 paper가 없습니다.',
+                    'data': {
+                        'id': user.id,
+                        'email' : user.email,
+                        'category' : interests,
+                        'library' : papers,
+                    }
+                }
                 return response_object, 201
         else:
             response_object = {

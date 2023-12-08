@@ -27,7 +27,7 @@ class UserDto:
         'user_id': fields.Integer(required=True, description='User ID')
     })
     del_library = api.model('library_del', {
-        'id': fields.Integer(required=True, description='User ID'),
+        'title': fields.String(required=True, description='title'),
         'user_id': fields.Integer(required=True, description='User ID')
     })
     add_interest = api.model('interest_add', {
@@ -70,6 +70,9 @@ class Users(Resource):
     def post(self):
         return add_user_paper(request.json)
     
+@api.route('/library/delete')
+@api.expect(parser)
+class Users(Resource):
     @api.doc('library에서 삭제')
     @api.expect(del_library, validate=False)
     def delete(self):

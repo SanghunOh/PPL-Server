@@ -16,7 +16,7 @@ flask_bcrypt = Bcrypt()
 migrate = Migrate()
 
 modeldata, category_list = model_run()
-# modeldata = {}
+# modeldata, category_list = {}, []
 
 from app.controller.user_controller import api as user_api
 from app.controller.model_controller import api as model_api
