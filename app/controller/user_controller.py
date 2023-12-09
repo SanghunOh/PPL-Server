@@ -2,7 +2,7 @@ from flask import Blueprint
 from flask import request
 from flask_restx import Resource, Namespace, fields
 
-from app.service.user_service import save_new_user, get_user, add_user_paper, delete_user_paper, delete_user_interest
+from app.service.user_service import save_new_user, get_user, add_user_paper, delete_user_paper, delete_user_interest, add_user_interest
 from ..service.forms import SignInForm, SignUpForm
 from app.service.auth_helper import Auth
 
@@ -31,9 +31,11 @@ class UserDto:
         'user_id': fields.Integer(required=True, description='User ID')
     })
     add_interest = api.model('interest_add', {
+        'category': fields.String(required=True, description='category'),
+        'user_id': fields.Integer(required=True, description='User ID')
     })
     del_category = api.model('interest_del', {
-        'id': fields.Integer(required=True, description='User ID'),
+        'category': fields.String(required=True, description='category'),
         'user_id': fields.Integer(required=True, description='User ID')
     })
 
@@ -43,6 +45,9 @@ signup = UserDto.signup
 signin = UserDto.signin
 add_library = UserDto.add_library
 del_library = UserDto.del_library
+add_interest = UserDto.add_interest
+del_category = UserDto.del_category
+
 
 @api.route('/signin')
 @api.expect(parser)
@@ -69,7 +74,7 @@ class Users(Resource):
     @api.expect(add_library, validate=True)
     def post(self):
         return add_user_paper(request.json)
-    
+
 @api.route('/library/delete')
 @api.expect(parser)
 class Users(Resource):
@@ -77,16 +82,19 @@ class Users(Resource):
     @api.expect(del_library, validate=False)
     def delete(self):
         return delete_user_paper(request.json)
-    
+
+@api.route('/interest/add')
+@api.expect(parser)
+class Users(Resource):    
+    @api.doc('interest에서 추가')
+    @api.expect(add_interest, validate=False)
+    def post(self):
+        return add_user_interest(request.json)
+
 @api.route('/interest')
 @api.expect(parser)
-class Users(Resource):
-    # @api.doc('library에 추가')
-    # @api.expect(add_library, validate=True)
-    # def post(self):
-    #     return add_user_interest(request.json)
-    
+class Users(Resource):    
     @api.doc('interest에서 삭제')
-    @api.expect(del_library, validate=False)
+    @api.expect(del_category, validate=False)
     def delete(self):
         return delete_user_interest(request.json)

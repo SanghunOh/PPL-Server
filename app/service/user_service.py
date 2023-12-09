@@ -162,12 +162,66 @@ def add_user_paper(data):
     finally:
         db.session.close()
 
+def add_user_interest(data):
+    try:
+        user = User.query.filter_by(id=data['user_id']).first()
+        # db에 중복되는 email 주소 없음.
+        if user != None:
+            interest = Interest.query.filter_by(name=data['category'])
+            ids = [i.user_id for i in interest]
+            if interest.count == 0 or user.id not in ids:
+                new_interest = Interest(
+                    name=data['category'],
+                    user_id=data['user_id']
+                )
+                
+                user.interests.append(new_interest)
+                db.session.commit()
+                interests = [interest.to_dict() for interest in user.interests]
+                papers = [paper.to_dict() for paper in user.papers]
+                response_object = {
+                    'status': 'success',
+                    'message': 'library에 paper를 추가하였습니다.',
+                    'data': {
+                        'id': user.id,
+                        'email' : user.email,
+                        'category' : interests,
+                        'library' : papers,
+                    }
+                }
+                # db.session.close()
+                return response_object, 201
+            else:
+                response_object = {
+                    'status': 'fail',
+                    'message': '이미 저장된 논문입니다.',
+                    'data': {},
+                }
+                db.session.close()
+                return response_object, 401
+        else:
+            response_object = {
+                'status': 'fail',
+                'message': '해당 회원이 없습니다.',
+                'data': {},
+            }
+            db.session.close()
+            return response_object, 401
+    except Exception as e:
+        response_object = {
+            'status': 'error',
+            'message': str(e)
+        }
+        return response_object, 500
+    finally:
+        db.session.close()
+
 def delete_user_paper(data):
     try:
         user = User.query.filter_by(id=data['user_id']).first()
         if user != None:
             # paper_to_remove = Paper.query.filter_by(title=data['title']).first()
-            paper_to_remove = [paper for paper in user.papers if paper.id != data['title']][0]
+            paper_to_remove = [paper for paper in user.papers if paper.title == data['title']][0]
             if paper_to_remove:
                 # user.papers.remove(paper_to_remove)
                 print(paper_to_remove)
@@ -222,14 +276,14 @@ def delete_user_interest(data):
     try:
         user = User.query.filter_by(id=data['user_id']).first()
         if user != None:
-            interest_to_remove = Interest.query.filter_by(id=data['id']).first()
+            print(data)
+            interest_to_remove = Interest.query.filter_by(name=data['category']).first()
             if interest_to_remove:
-                
-                interests = [interest.to_dict() for interest in user.interests if interest.id != data['id']]
+                interests = [interest.to_dict() for interest in user.interests if interest.name != data['category']]
                 papers = [paper.to_dict() for paper in user.papers]
                 response_object = {
                     'status': 'success',
-                    'message': 'library에 paper를 추가하였습니다.',
+                    'message': 'interest를 삭제하였습니다.',
                     'data': {
                         'id': user.id,
                         'email' : user.email,
@@ -240,6 +294,20 @@ def delete_user_interest(data):
                 db.session.delete(interest_to_remove)
                 db.session.commit()
                 db.session.close()
+                return response_object, 201
+            else:
+                interests = [interest.to_dict() for interest in user.interests]
+                papers = [paper.to_dict() for paper in user.papers]
+                response_object = {
+                    'status': 'success',
+                    'message': 'interest가 없습니다.',
+                    'data': {
+                        'id': user.id,
+                        'email' : user.email,
+                        'category' : interests,
+                        'library' : papers,
+                    }
+                }
                 return response_object, 201
         else:
             response_object = {
